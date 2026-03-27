@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Custom marker cluster styles */
+.marker-cluster-small {
+  background-color: rgba(30, 64, 175, 0.3) !important;
+}
+.marker-cluster-small div {
+  background-color: rgba(30, 64, 175, 0.6) !important;
+  color: white !important;
+}
+.marker-cluster-medium {
+  background-color: rgba(37, 99, 235, 0.3) !important;
+}
+.marker-cluster-medium div {
+  background-color: rgba(37, 99, 235, 0.6) !important;
+  color: white !important;
+}
+.marker-cluster-large {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+}
+.marker-cluster-large div {
+  background-color: rgba(59, 130, 246, 0.6) !important;
+  color: white !important;
+}
