@@ -10,6 +10,10 @@ from sqlalchemy.orm import Session
 from database import engine, get_db, Base
 from models import WaterPoint
 
+with engine.connect() as conn:
+    conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+    conn.commit()
+
 Base.metadata.create_all(bind=engine, checkfirst=True)
 
 with engine.connect() as conn:

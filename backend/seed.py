@@ -1,4 +1,5 @@
 """Seed the database with realistic water points for Atyrau and Mangystau regions."""
+from sqlalchemy import text
 from database import engine, SessionLocal, Base
 from models import WaterPoint
 
@@ -173,6 +174,9 @@ SEED_DATA = [
 
 
 def seed():
+    with engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+        conn.commit()
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     if db.query(WaterPoint).count() > 0:
