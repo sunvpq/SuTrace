@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 from typing import Optional
 
@@ -135,22 +136,21 @@ def get_nearest_point(
     quality: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
-    q = db.query(
-        WaterPoint,
-        func.ST_Distance(
-            WaterPoint.location,
-            func.ST_GeogFromText(f"POINT({lon} {lat})")
-        ).label("distance"),
-    )
+    q = db.query(WaterPoint).filter(WaterPoint.status == "active")
     if quality:
         q = q.filter(WaterPoint.water_quality == quality)
-    q = q.filter(WaterPoint.status == "active")
-    result = q.order_by("distance").first()
-    if not result:
+    points = q.all()
+    if not points:
         raise HTTPException(status_code=404, detail="No points found")
-    point, distance = result
-    d = point_to_dict(point)
-    d["distance_m"] = round(distance, 1)
+    nearest = min(
+        points,
+        key=lambda p: math.sqrt((p.latitude - lat) ** 2 + (p.longitude - lon) ** 2)
+    )
+    dist = math.sqrt((nearest.latitude - lat) ** 2 + (nearest.longitude - lon) ** 2)
+    # Convert degrees to approximate metres (1 degree ≈ 111 km)
+    dist_m = dist * 111_000
+    d = point_to_dict(nearest)
+    d["distance_m"] = round(dist_m, 1)
     return d
 
 
