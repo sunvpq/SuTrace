@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker,
+  MapContainer, TileLayer, useMap,
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -147,23 +147,43 @@ function LocateButton() {
   )
 }
 
-// UserLocationMarker shown after geolocation
+// User location marker with pulsing animation and "You" label
+const userLocationIcon = L.divIcon({
+  className: '',
+  html: `
+    <div class="user-location-marker">
+      <div class="user-location-ring"></div>
+      <div class="user-location-dot"></div>
+      <span class="user-location-label">You</span>
+    </div>
+  `,
+  iconSize: [80, 20],
+  iconAnchor: [8, 8],
+})
+
 function UserLocation() {
   const map = useMap()
-  const [pos, setPos] = useState(null)
+  const markerRef = useRef(null)
 
   useEffect(() => {
-    map.on('locationfound', (e) => {
-      setPos(e.latlng)
-    })
+    const onLocationFound = (e) => {
+      if (markerRef.current) {
+        map.removeLayer(markerRef.current)
+      }
+      const marker = L.marker(e.latlng, { icon: userLocationIcon, zIndexOffset: 1000 })
+        .addTo(map)
+        .bindPopup('Вы здесь')
+      markerRef.current = marker
+    }
+
+    map.on('locationfound', onLocationFound)
+    return () => {
+      map.off('locationfound', onLocationFound)
+      if (markerRef.current) map.removeLayer(markerRef.current)
+    }
   }, [map])
 
-  if (!pos) return null
-  return (
-    <CircleMarker center={pos} radius={10} pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.5 }}>
-      <Popup>Вы здесь</Popup>
-    </CircleMarker>
-  )
+  return null
 }
 
 export default function MapPage({ apiBase, refreshKey }) {

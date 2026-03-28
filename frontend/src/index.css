@@ -35,3 +35,49 @@ body {
   background-color: rgba(59, 130, 246, 0.6) !important;
   color: white !important;
 }
+
+/* User location marker */
+@keyframes sutrace-pulse {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  70%  { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.user-location-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-location-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2.5px solid white;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.6);
+  flex-shrink: 0;
+}
+
+.user-location-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: sutrace-pulse 1.8s ease-out infinite;
+}
+
+.user-location-label {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e40af;
+  background: white;
+  padding: 1px 5px;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
