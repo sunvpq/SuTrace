@@ -180,10 +180,7 @@ def seed():
         db.close()
         return
     for item in SEED_DATA:
-        point = WaterPoint(
-            **item,
-            location=f"POINT({item['longitude']} {item['latitude']})",
-        )
+        point = WaterPoint(**item)
         db.add(point)
     db.commit()
     print(f"Seeded {len(SEED_DATA)} water points.")
