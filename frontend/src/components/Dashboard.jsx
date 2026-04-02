@@ -138,9 +138,12 @@ export default function Dashboard({ apiBase }) {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-50 pb-16 md:pb-0">
+    <div className="h-full overflow-y-auto bg-slate-50 pb-16 md:pb-0">
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Дашборд акимата</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Дашборд акимата</h2>
+          <p className="text-sm text-slate-500 mt-1">Западный Казахстан — Атырауская и Мангистауская области</p>
+        </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -232,8 +235,10 @@ export default function Dashboard({ apiBase }) {
           <div className="h-64 rounded-lg overflow-hidden">
             <MapContainer center={[45.5, 52.5]} zoom={6} className="h-full w-full" zoomControl={false}>
               <TileLayer
-                attribution='&copy; OSM'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                subdomains="abcd"
+                maxZoom={20}
               />
               <HeatmapLayer points={points} />
             </MapContainer>

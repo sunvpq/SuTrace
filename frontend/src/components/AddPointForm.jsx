@@ -127,9 +127,12 @@ export default function AddPointForm({ apiBase, onAdded }) {
   }
 
   return (
-    <div className="h-full overflow-y-auto pb-16 md:pb-0">
+    <div className="h-full overflow-y-auto pb-16 md:pb-0 bg-slate-50">
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-5">Добавить водную точку</h2>
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-slate-900">Добавить водную точку</h2>
+          <p className="text-sm text-slate-500 mt-1">Кликните по карте или введите координаты вручную</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Map picker */}
@@ -145,8 +148,10 @@ export default function AddPointForm({ apiBase, onAdded }) {
                 zoomControl={true}
               >
                 <TileLayer
-                  attribution='&copy; OSM'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  subdomains="abcd"
+                  maxZoom={20}
                 />
                 <MapPicker position={mapPos} setPosition={setMapPos} />
               </MapContainer>

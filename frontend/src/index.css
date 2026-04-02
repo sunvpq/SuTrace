@@ -4,36 +4,77 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .leaflet-container {
   width: 100%;
   height: 100%;
   z-index: 1;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom popup card */
+.leaflet-popup-content-wrapper {
+  border-radius: 14px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18) !important;
+  border: none !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+.leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+.leaflet-popup-tip {
+  background: white !important;
 }
 
 /* Custom marker cluster styles */
 .marker-cluster-small {
-  background-color: rgba(30, 64, 175, 0.3) !important;
+  background-color: rgba(59, 130, 246, 0.2) !important;
 }
 .marker-cluster-small div {
-  background-color: rgba(30, 64, 175, 0.6) !important;
+  background-color: rgba(59, 130, 246, 0.75) !important;
   color: white !important;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
 }
 .marker-cluster-medium {
-  background-color: rgba(37, 99, 235, 0.3) !important;
+  background-color: rgba(37, 99, 235, 0.2) !important;
 }
 .marker-cluster-medium div {
-  background-color: rgba(37, 99, 235, 0.6) !important;
+  background-color: rgba(37, 99, 235, 0.75) !important;
   color: white !important;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
 }
 .marker-cluster-large {
-  background-color: rgba(59, 130, 246, 0.3) !important;
+  background-color: rgba(30, 64, 175, 0.2) !important;
 }
 .marker-cluster-large div {
-  background-color: rgba(59, 130, 246, 0.6) !important;
+  background-color: rgba(30, 64, 175, 0.75) !important;
   color: white !important;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Loading skeleton */
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.4s infinite;
 }
 
 /* User location marker */
@@ -55,7 +96,7 @@ body {
   border-radius: 50%;
   background: #3b82f6;
   border: 2.5px solid white;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.6);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.6);
   flex-shrink: 0;
 }
 
@@ -72,12 +113,14 @@ body {
 
 .user-location-label {
   margin-left: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: #1e40af;
   background: white;
-  padding: 1px 5px;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
   white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
 }

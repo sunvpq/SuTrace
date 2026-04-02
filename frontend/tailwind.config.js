@@ -3,7 +3,15 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
       colors: {
+        navy: {
+          900: '#0f172a',
+          800: '#1e293b',
+          700: '#334155',
+        },
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',

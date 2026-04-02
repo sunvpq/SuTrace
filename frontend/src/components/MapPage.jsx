@@ -7,11 +7,9 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
-import Filters from './Filters'
-import PointPopup from './PointPopup'
+import Filters, { FilterPanel } from './Filters'
 import NearestButton from './NearestButton'
 
-// Fix default marker icon issue in webpack/vite
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -19,45 +17,94 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const STATUS_COLORS = {
-  active: '#22c55e',
-  broken: '#ef4444',
-  abandoned: '#6b7280',
+const TYPE_LABELS = {
+  borehole: 'Скважина', well: 'Колодец', water_truck: 'Водовоз',
+  spring: 'Родник', other: 'Другое',
+}
+const STATUS_LABELS = {
+  active: 'Работает', broken: 'Сломана', abandoned: 'Заброшена',
+}
+const QUALITY_LABELS = {
+  fresh: 'Пресная', slightly_saline: 'Слабосолёная', saline: 'Солёная',
+  technical: 'Техническая', unknown: 'Неизвестно',
+}
+const STATUS_BADGE_COLORS = {
+  active: { bg: '#dcfce7', text: '#166534' },
+  broken: { bg: '#fee2e2', text: '#991b1b' },
+  abandoned: { bg: '#f1f5f9', text: '#475569' },
+}
+const QUALITY_BADGE_COLORS = {
+  fresh: { bg: '#dcfce7', text: '#166534' },
+  slightly_saline: { bg: '#fef9c3', text: '#854d0e' },
+  saline: { bg: '#ffedd5', text: '#9a3412' },
+  technical: { bg: '#fee2e2', text: '#991b1b' },
+  unknown: { bg: '#f1f5f9', text: '#475569' },
 }
 
-const QUALITY_COLORS = {
-  fresh: '#22c55e',
-  slightly_saline: '#eab308',
-  saline: '#f97316',
-  technical: '#ef4444',
-  unknown: '#6b7280',
+function getMarkerColor(point) {
+  if (point.status === 'abandoned') return '#94a3b8'
+  if (point.status === 'broken') return '#ef4444'
+  if (point.type === 'water_truck') return '#3b82f6'
+  if (point.water_quality === 'fresh') return '#22c55e'
+  if (point.water_quality === 'slightly_saline') return '#eab308'
+  if (point.water_quality === 'saline' || point.water_quality === 'technical') return '#f97316'
+  return '#94a3b8'
 }
 
 function createColorIcon(color) {
   return L.divIcon({
     className: '',
     html: `<div style="
-      width:28px;height:28px;border-radius:50%;
+      width:26px;height:26px;border-radius:50%;
       background:${color};border:3px solid white;
-      box-shadow:0 2px 6px rgba(0,0,0,0.35);
+      box-shadow:0 2px 8px rgba(0,0,0,0.25);
+      transition: transform 0.15s;
     "></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
     popupAnchor: [0, -16],
   })
 }
 
-function getMarkerColor(point) {
-  if (point.status === 'abandoned') return '#6b7280'
-  if (point.status === 'broken') return '#ef4444'
-  if (point.type === 'water_truck') return '#3b82f6'
-  if (point.water_quality === 'fresh') return '#22c55e'
-  if (point.water_quality === 'slightly_saline') return '#eab308'
-  if (point.water_quality === 'saline' || point.water_quality === 'technical') return '#eab308'
-  return '#6b7280'
+function buildPopupHtml(p) {
+  const color = getMarkerColor(p)
+  const statusC = STATUS_BADGE_COLORS[p.status] || { bg: '#f1f5f9', text: '#475569' }
+  const qualityC = QUALITY_BADGE_COLORS[p.water_quality] || { bg: '#f1f5f9', text: '#475569' }
+
+  const badge = (label, bg, text) =>
+    `<span style="display:inline-block;padding:2px 8px;border-radius:20px;background:${bg};color:${text};font-size:11px;font-weight:600;">${label}</span>`
+
+  const row = (label, val) =>
+    `<tr>
+      <td style="color:#64748b;padding:3px 10px 3px 0;font-size:12px;white-space:nowrap;">${label}</td>
+      <td style="color:#0f172a;font-size:12px;font-weight:500;">${val}</td>
+    </tr>`
+
+  return `
+    <div style="font-family:'Inter',-apple-system,sans-serif;min-width:230px;max-width:290px;">
+      <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);padding:12px 14px;display:flex;align-items:center;gap:8px;">
+        <div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.6);flex-shrink:0;"></div>
+        <span style="font-weight:700;font-size:13px;color:white;line-height:1.3;">${p.name}</span>
+      </div>
+      <div style="padding:12px 14px;background:white;">
+        <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;">
+          ${badge(STATUS_LABELS[p.status] || p.status, statusC.bg, statusC.text)}
+          ${badge(QUALITY_LABELS[p.water_quality] || '—', qualityC.bg, qualityC.text)}
+        </div>
+        <table style="border-collapse:collapse;width:100%;">
+          ${row('Тип', TYPE_LABELS[p.type] || p.type)}
+          ${p.mineralization ? row('Минерал.', `${p.mineralization} г/л`) : ''}
+          ${p.depth ? row('Глубина', `${p.depth} м`) : ''}
+          ${p.balance_holder ? row('Баланс', p.balance_holder) : ''}
+          ${p.district ? row('Район', p.district) : ''}
+        </table>
+        ${p.comment ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:11px;color:#64748b;line-height:1.5;">${p.comment}</div>` : ''}
+        <div style="margin-top:8px;font-size:11px;color:#94a3b8;">📍 ${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}</div>
+      </div>
+    </div>
+  `
 }
 
-// Cluster layer component
 function MarkerClusterGroup({ points }) {
   const map = useMap()
   const clusterRef = useRef(null)
@@ -78,33 +125,7 @@ function MarkerClusterGroup({ points }) {
       const marker = L.marker([p.latitude, p.longitude], {
         icon: createColorIcon(color),
       })
-      const typeLabels = {
-        borehole: 'Скважина', well: 'Колодец', water_truck: 'Водовоз',
-        spring: 'Родник', other: 'Другое',
-      }
-      const statusLabels = {
-        active: '✅ Работает', broken: '🔧 Сломана', abandoned: '⛔ Заброшена',
-      }
-      const qualityLabels = {
-        fresh: 'Пресная', slightly_saline: 'Слабосолёная', saline: 'Солёная',
-        technical: 'Техническая', unknown: 'Неизвестно',
-      }
-      marker.bindPopup(`
-        <div style="min-width:220px;font-family:sans-serif;">
-          <h3 style="margin:0 0 8px;font-size:15px;color:#1e40af;">${p.name}</h3>
-          <table style="font-size:13px;line-height:1.6;border-collapse:collapse;">
-            <tr><td style="color:#666;padding-right:8px;">Тип</td><td><b>${typeLabels[p.type] || p.type}</b></td></tr>
-            <tr><td style="color:#666;padding-right:8px;">Статус</td><td>${statusLabels[p.status] || p.status}</td></tr>
-            <tr><td style="color:#666;padding-right:8px;">Качество</td><td>${qualityLabels[p.water_quality] || '—'}</td></tr>
-            ${p.mineralization ? `<tr><td style="color:#666;padding-right:8px;">Минерал.</td><td>${p.mineralization} г/л</td></tr>` : ''}
-            ${p.depth ? `<tr><td style="color:#666;padding-right:8px;">Глубина</td><td>${p.depth} м</td></tr>` : ''}
-            ${p.balance_holder ? `<tr><td style="color:#666;padding-right:8px;">Баланс</td><td>${p.balance_holder}</td></tr>` : ''}
-            ${p.district ? `<tr><td style="color:#666;padding-right:8px;">Район</td><td>${p.district}</td></tr>` : ''}
-          </table>
-          ${p.comment ? `<p style="margin:8px 0 0;font-size:12px;color:#555;border-top:1px solid #eee;padding-top:6px;">${p.comment}</p>` : ''}
-          <p style="margin:4px 0 0;font-size:11px;color:#999;">📍 ${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}</p>
-        </div>
-      `, { maxWidth: 300 })
+      marker.bindPopup(buildPopupHtml(p), { maxWidth: 300, className: '' })
       cluster.addLayer(marker)
     })
 
@@ -121,7 +142,6 @@ function MarkerClusterGroup({ points }) {
   return null
 }
 
-// Geolocation button
 function LocateButton() {
   const map = useMap()
   const [locating, setLocating] = useState(false)
@@ -139,15 +159,21 @@ function LocateButton() {
   return (
     <button
       onClick={handleLocate}
-      className="absolute top-4 right-4 z-[1000] bg-white shadow-lg rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center gap-1"
+      className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white flex items-center gap-1.5 border border-slate-200 transition-all"
       disabled={locating}
     >
-      📍 {locating ? 'Поиск...' : 'Где я?'}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <line x1="12" y1="2" x2="12" y2="6" />
+        <line x1="12" y1="18" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="6" y2="12" />
+        <line x1="18" y1="12" x2="22" y2="12" />
+      </svg>
+      {locating ? 'Поиск...' : 'Где я?'}
     </button>
   )
 }
 
-// User location marker with pulsing animation and "You" label
 const userLocationIcon = L.divIcon({
   className: '',
   html: `
@@ -186,6 +212,52 @@ function UserLocation() {
   return null
 }
 
+// Sidebar point card
+function PointCard({ point }) {
+  const color = getMarkerColor(point)
+  const statusC = STATUS_BADGE_COLORS[point.status] || { bg: '#f1f5f9', text: '#475569' }
+
+  return (
+    <div className="px-4 py-3 border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+      <div className="flex items-start gap-2.5">
+        <div
+          className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 border-2 border-white shadow-sm"
+          style={{ background: color }}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-800 truncate leading-tight">{point.name}</p>
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            <span className="text-xs text-slate-400">{TYPE_LABELS[point.type] || point.type}</span>
+            <span
+              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              style={{ background: statusC.bg, color: statusC.text }}
+            >
+              {STATUS_LABELS[point.status] || point.status}
+            </span>
+          </div>
+          {point.district && (
+            <p className="text-xs text-slate-400 mt-0.5 truncate">{point.district}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SkeletonCard() {
+  return (
+    <div className="px-4 py-3 border-b border-slate-100">
+      <div className="flex items-start gap-2.5">
+        <div className="skeleton w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5" />
+        <div className="flex-1 space-y-2">
+          <div className="skeleton h-3.5 w-3/4 rounded" />
+          <div className="skeleton h-3 w-1/2 rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MapPage({ apiBase, refreshKey }) {
   const [points, setPoints] = useState([])
   const [filters, setFilters] = useState({ type: '', status: '', water_quality: '' })
@@ -211,46 +283,131 @@ export default function MapPage({ apiBase, refreshKey }) {
     fetchPoints()
   }, [fetchPoints, refreshKey])
 
-  // Center on western Kazakhstan
   const center = [45.5, 52.5]
+  const activeCount = points.filter(p => p.status === 'active').length
 
   return (
-    <div className="relative h-full">
-      <Filters filters={filters} setFilters={setFilters} />
+    <div className="flex flex-col md:flex-row h-full">
 
-      <div className="h-full pb-14 md:pb-0">
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden md:flex flex-col w-80 flex-shrink-0 bg-white border-r border-slate-200 overflow-hidden">
+
+        {/* Stats header */}
+        <div className="bg-navy-900 p-4 flex-shrink-0">
+          <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-3">Обзор — Западный Казахстан</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl font-bold text-white">
+                {loading ? <span className="skeleton inline-block w-8 h-7 rounded" /> : points.length}
+              </div>
+              <div className="text-xs text-blue-300 mt-0.5">Всего точек</div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl font-bold text-green-400">
+                {loading ? <span className="skeleton inline-block w-8 h-7 rounded" /> : activeCount}
+              </div>
+              <div className="text-xs text-blue-300 mt-0.5">Работают</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters panel */}
+        <FilterPanel filters={filters} setFilters={setFilters} />
+
+        {/* Legend */}
+        <div className="px-4 py-3 border-b border-slate-100 flex-shrink-0">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Легенда</p>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+            {[
+              ['#22c55e', 'Пресная'],
+              ['#eab308', 'Слабосолёная'],
+              ['#f97316', 'Солёная'],
+              ['#ef4444', 'Сломана'],
+              ['#3b82f6', 'Водовоз'],
+              ['#94a3b8', 'Заброшена'],
+            ].map(([color, label]) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                <span className="text-xs text-slate-500">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Points list */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-4 py-2 flex-shrink-0">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Точки {!loading && `(${points.length})`}
+            </p>
+          </div>
+
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+            : points.length === 0
+              ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="text-4xl mb-3">🔍</div>
+                  <p className="text-sm font-semibold text-slate-700">Точки не найдены</p>
+                  <p className="text-xs text-slate-400 mt-1">Попробуйте изменить фильтры</p>
+                </div>
+              )
+              : points.map(p => <PointCard key={p.id} point={p} />)
+          }
+        </div>
+      </aside>
+
+      {/* ── Map area ── */}
+      <div className="flex-1 relative min-h-0">
+        {/* Mobile floating filters */}
+        <div className="md:hidden">
+          <Filters filters={filters} setFilters={setFilters} />
+        </div>
+
         <MapContainer
           center={center}
           zoom={6}
           className="h-full w-full"
           zoomControl={false}
+          style={{ minHeight: '300px' }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            subdomains="abcd"
+            maxZoom={20}
           />
           <MarkerClusterGroup points={points} />
           <LocateButton />
           <UserLocation />
           <NearestButton apiBase={apiBase} />
         </MapContainer>
-      </div>
 
-      {loading && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-white/90 px-4 py-2 rounded-full shadow text-sm z-[1000]">
-          Загрузка...
-        </div>
-      )}
+        {/* Loading overlay */}
+        {loading && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur px-4 py-2 rounded-full shadow-lg text-sm font-medium text-slate-600 z-[1000] flex items-center gap-2 border border-slate-200">
+            <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            Загрузка...
+          </div>
+        )}
 
-      {/* Legend */}
-      <div className="absolute bottom-16 md:bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg shadow-lg p-3 z-[1000] text-xs">
-        <div className="font-semibold mb-1 text-gray-700">Легенда</div>
-        <div className="flex flex-col gap-0.5">
-          <span><span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-1"></span>Пресная / Работает</span>
-          <span><span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-1"></span>Солёная / Техническая</span>
-          <span><span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>Сломана</span>
-          <span><span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span>Водовоз</span>
-          <span><span className="inline-block w-3 h-3 rounded-full bg-gray-500 mr-1"></span>Заброшена</span>
+        {/* Mobile legend (bottom-right floating) */}
+        <div className="md:hidden absolute bottom-20 right-3 bg-white/95 backdrop-blur rounded-xl shadow-lg p-3 z-[1000] border border-slate-200">
+          <div className="flex flex-col gap-1.5">
+            {[
+              ['#22c55e', 'Пресная'],
+              ['#ef4444', 'Сломана'],
+              ['#3b82f6', 'Водовоз'],
+              ['#94a3b8', 'Заброшена'],
+            ].map(([color, label]) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                <span className="text-xs text-slate-600">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
