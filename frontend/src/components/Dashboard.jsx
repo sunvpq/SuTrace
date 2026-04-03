@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
@@ -69,6 +69,18 @@ function StatCard({ label, value, color, icon }) {
   )
 }
 
+function SkeletonStatCard() {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4">
+      <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-6 w-14 bg-gray-200 animate-pulse rounded" />
+        <div className="h-3 w-24 bg-gray-200 animate-pulse rounded" />
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard({ apiBase }) {
   const [stats, setStats] = useState(null)
   const [byDistrict, setByDistrict] = useState([])
@@ -99,8 +111,16 @@ export default function Dashboard({ apiBase }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">Загрузка данных...</div>
+      <div className="h-full overflow-y-auto bg-slate-50 pb-16 md:pb-0">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Дашборд акимата</h2>
+            <p className="text-sm text-slate-500 mt-1">Западный Казахстан — Атырауская и Мангистауская области</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonStatCard key={i} />)}
+          </div>
+        </div>
       </div>
     )
   }
@@ -154,9 +174,9 @@ export default function Dashboard({ apiBase }) {
         </div>
 
         {/* Charts row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
           {/* Status pie */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col overflow-hidden" style={{ minHeight: '280px' }}>
             <h3 className="text-sm font-semibold text-gray-700 mb-3">По статусу</h3>
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
@@ -166,8 +186,6 @@ export default function Dashboard({ apiBase }) {
                   cy="50%"
                   outerRadius={65}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  labelLine={false}
                 >
                   {pieStatusData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
@@ -176,10 +194,21 @@ export default function Dashboard({ apiBase }) {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 justify-center">
+              {(() => {
+                const total = pieStatusData.reduce((s, d) => s + d.value, 0)
+                return pieStatusData.map((entry, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <span style={{ width: 10, height: 10, backgroundColor: entry.color, display: 'inline-block', borderRadius: 2, flexShrink: 0 }} />
+                    <span className="text-xs text-gray-600">{entry.name} {total > 0 ? ((entry.value / total) * 100).toFixed(0) : 0}%</span>
+                  </div>
+                ))
+              })()}
+            </div>
           </div>
 
           {/* Quality pie */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col overflow-hidden" style={{ minHeight: '280px' }}>
             <h3 className="text-sm font-semibold text-gray-700 mb-3">По качеству воды</h3>
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
@@ -189,40 +218,49 @@ export default function Dashboard({ apiBase }) {
                   cy="50%"
                   outerRadius={65}
                   dataKey="value"
-                  label={({ name, percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
                 >
                   {pieQualityData.map((_, i) => (
                     <Cell key={i} fill={QUALITY_COLORS[i % QUALITY_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend
-                  formatter={(value) => <span style={{ fontSize: '11px' }}>{value}</span>}
-                />
               </PieChart>
             </ResponsiveContainer>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 justify-center">
+              {(() => {
+                const total = pieQualityData.reduce((s, d) => s + d.value, 0)
+                return pieQualityData.map((entry, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <span style={{ width: 10, height: 10, backgroundColor: QUALITY_COLORS[i % QUALITY_COLORS.length], display: 'inline-block', borderRadius: 2, flexShrink: 0 }} />
+                    <span className="text-xs text-gray-600">{entry.name} {total > 0 ? ((entry.value / total) * 100).toFixed(0) : 0}%</span>
+                  </div>
+                ))
+              })()}
+            </div>
           </div>
 
           {/* By district bar */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col overflow-hidden" style={{ minHeight: '280px' }}>
             <h3 className="text-sm font-semibold text-gray-700 mb-3">По районам</h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart
-                data={byDistrict}
-                layout="vertical"
-                margin={{ left: 8, right: 8 }}
-              >
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  type="category"
-                  dataKey="district"
-                  width={90}
-                  tick={{ fontSize: 10 }}
-                />
-                <Tooltip />
-                <Bar dataKey="count" fill="#1e40af" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ flex: 1 }}>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart
+                  data={byDistrict}
+                  layout="vertical"
+                  margin={{ left: 0, right: 16, top: 4, bottom: 4 }}
+                >
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis
+                    type="category"
+                    dataKey="district"
+                    width={110}
+                    tick={{ fontSize: 10 }}
+                  />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#1e40af" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 

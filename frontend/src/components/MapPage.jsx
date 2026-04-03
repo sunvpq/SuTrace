@@ -145,32 +145,41 @@ function MarkerClusterGroup({ points }) {
 function LocateButton() {
   const map = useMap()
   const [locating, setLocating] = useState(false)
+  const [error, setError] = useState('')
 
   const handleLocate = () => {
     setLocating(true)
+    setError('')
     map.locate({ setView: true, maxZoom: 12 })
     map.once('locationfound', () => setLocating(false))
     map.once('locationerror', () => {
       setLocating(false)
-      alert('Не удалось определить местоположение')
+      setError('Не удалось определить местоположение')
     })
   }
 
   return (
-    <button
-      onClick={handleLocate}
-      className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white flex items-center gap-1.5 border border-slate-200 transition-all"
-      disabled={locating}
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <line x1="12" y1="2" x2="12" y2="6" />
-        <line x1="12" y1="18" x2="12" y2="22" />
-        <line x1="2" y1="12" x2="6" y2="12" />
-        <line x1="18" y1="12" x2="22" y2="12" />
-      </svg>
-      {locating ? 'Поиск...' : 'Где я?'}
-    </button>
+    <div className="absolute top-4 right-4 z-[1000] flex flex-col items-end gap-1">
+      <button
+        onClick={handleLocate}
+        className="bg-white/95 backdrop-blur shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white flex items-center gap-1.5 border border-slate-200 transition-all"
+        disabled={locating}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <line x1="12" y1="2" x2="12" y2="6" />
+          <line x1="12" y1="18" x2="12" y2="22" />
+          <line x1="2" y1="12" x2="6" y2="12" />
+          <line x1="18" y1="12" x2="22" y2="12" />
+        </svg>
+        {locating ? 'Поиск...' : 'Где я?'}
+      </button>
+      {error && (
+        <div style={{ color: '#dc2626', fontSize: '12px', padding: '4px 8px', background: 'white', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', maxWidth: '200px', textAlign: 'right' }}>
+          {error}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -338,7 +347,7 @@ export default function MapPage({ apiBase, refreshKey }) {
         <div className="flex-1 overflow-y-auto">
           <div className="px-4 py-2 flex-shrink-0">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Точки {!loading && `(${points.length})`}
+              {loading ? 'Загрузка точек...' : `Точки (${points.length})`}
             </p>
           </div>
 

@@ -6,9 +6,11 @@ export default function NearestButton({ apiBase }) {
   const map = useMap()
   const [searching, setSearching] = useState(false)
   const [line, setLine] = useState(null)
+  const [error, setError] = useState('')
 
   const handleClick = () => {
     setSearching(true)
+    setError('')
     if (line) {
       map.removeLayer(line)
       setLine(null)
@@ -22,7 +24,7 @@ export default function NearestButton({ apiBase }) {
             `${apiBase}/points/nearest?lat=${latitude}&lon=${longitude}&quality=fresh`
           )
           if (!res.ok) {
-            alert('Пресные источники не найдены')
+            setError('Пресные источники не найдены')
             setSearching(false)
             return
           }
@@ -48,28 +50,35 @@ export default function NearestButton({ apiBase }) {
             `)
             .openOn(map)
         } catch (err) {
-          alert('Ошибка поиска: ' + err.message)
+          setError('Сервер недоступен. Проверьте подключение.')
         }
         setSearching(false)
       },
       () => {
-        alert('Не удалось определить местоположение')
+        setError('Не удалось определить местоположение')
         setSearching(false)
       }
     )
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={searching}
-      className="absolute top-16 right-4 z-[1000] bg-green-500 text-white shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold hover:bg-green-600 flex items-center gap-1.5 border border-green-400 disabled:opacity-50 transition-all"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
-        <circle cx="12" cy="10" r="3" />
-      </svg>
-      {searching ? 'Поиск...' : 'Ближайшая вода'}
-    </button>
+    <div className="absolute top-16 right-4 z-[1000] flex flex-col items-end gap-1">
+      <button
+        onClick={handleClick}
+        disabled={searching}
+        className="bg-green-500 text-white shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold hover:bg-green-600 flex items-center gap-1.5 border border-green-400 disabled:opacity-50 transition-all"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        {searching ? 'Поиск...' : 'Ближайшая вода'}
+      </button>
+      {error && (
+        <div style={{ color: '#dc2626', fontSize: '12px', padding: '4px 8px', background: 'white', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', maxWidth: '200px', textAlign: 'right' }}>
+          {error}
+        </div>
+      )}
+    </div>
   )
 }

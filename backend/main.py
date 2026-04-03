@@ -174,7 +174,6 @@ def create_point(data: PointCreate, db: Session = Depends(get_db)):
         balance_holder=data.balance_holder,
         latitude=data.latitude,
         longitude=data.longitude,
-        location=f"POINT({data.longitude} {data.latitude})",
         district=data.district,
         region=data.region,
         photo_url=data.photo_url,
@@ -195,10 +194,6 @@ def update_point(point_id: int, data: PointUpdate, db: Session = Depends(get_db)
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(point, key, value)
-    if "latitude" in update_data or "longitude" in update_data:
-        lat = update_data.get("latitude", point.latitude)
-        lon = update_data.get("longitude", point.longitude)
-        point.location = f"POINT({lon} {lat})"
     point.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(point)
