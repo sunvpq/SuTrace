@@ -66,7 +66,10 @@ export default function NearestButton({ apiBase }) {
       <button
         onClick={handleClick}
         disabled={searching}
-        className="bg-green-500 text-white shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold hover:bg-green-600 flex items-center gap-1.5 border border-green-400 disabled:opacity-50 transition-all"
+        className="text-white rounded-2xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50 transition-all"
+        style={{ background: '#00b4d8', boxShadow: '0 8px 24px rgba(0,180,216,0.35)', border: 'none' }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#0096b4' }}
+        onMouseLeave={e => { e.currentTarget.style.background = '#00b4d8' }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
@@ -75,7 +78,7 @@ export default function NearestButton({ apiBase }) {
         {searching ? 'Поиск...' : 'Ближайшая вода'}
       </button>
       {error && (
-        <div style={{ color: '#dc2626', fontSize: '12px', padding: '4px 8px', background: 'white', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', maxWidth: '200px', textAlign: 'right' }}>
+        <div style={{ color: '#f87171', fontSize: '12px', padding: '4px 10px', background: '#1a2e3b', border: '1px solid #2d4a5f', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)', maxWidth: '200px', textAlign: 'right' }}>
           {error}
         </div>
       )}

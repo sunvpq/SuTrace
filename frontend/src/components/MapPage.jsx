@@ -40,6 +40,12 @@ const QUALITY_BADGE_COLORS = {
   technical: { bg: '#fee2e2', text: '#991b1b' },
   unknown: { bg: '#f1f5f9', text: '#475569' },
 }
+// Dark variants for sidebar cards
+const STATUS_BADGE_DARK = {
+  active: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80' },
+  broken: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
+  abandoned: { bg: 'rgba(148,163,184,0.1)', text: '#94a3b8' },
+}
 
 function getMarkerColor(point) {
   if (point.status === 'abandoned') return '#94a3b8'
@@ -162,7 +168,8 @@ function LocateButton() {
     <div className="absolute top-4 right-4 z-[1000] flex flex-col items-end gap-1">
       <button
         onClick={handleLocate}
-        className="bg-white/95 backdrop-blur shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white flex items-center gap-1.5 border border-slate-200 transition-all"
+        className="backdrop-blur shadow-lg rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white flex items-center gap-1.5 border transition-all"
+        style={{ background: 'rgba(26,46,59,0.92)', borderColor: '#2d4a5f' }}
         disabled={locating}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -175,7 +182,7 @@ function LocateButton() {
         {locating ? 'Поиск...' : 'Где я?'}
       </button>
       {error && (
-        <div style={{ color: '#dc2626', fontSize: '12px', padding: '4px 8px', background: 'white', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', maxWidth: '200px', textAlign: 'right' }}>
+        <div style={{ color: '#f87171', fontSize: '12px', padding: '4px 10px', background: '#1a2e3b', border: '1px solid #2d4a5f', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)', maxWidth: '200px', textAlign: 'right' }}>
           {error}
         </div>
       )}
@@ -224,19 +231,23 @@ function UserLocation() {
 // Sidebar point card
 function PointCard({ point }) {
   const color = getMarkerColor(point)
-  const statusC = STATUS_BADGE_COLORS[point.status] || { bg: '#f1f5f9', text: '#475569' }
+  const statusC = STATUS_BADGE_DARK[point.status] || { bg: 'rgba(148,163,184,0.1)', text: '#94a3b8' }
 
   return (
-    <div className="px-4 py-3 border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+    <div className="px-4 py-3 cursor-pointer transition-colors border-b"
+      style={{ borderColor: '#2d4a5f' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,180,216,0.05)' }}
+      onMouseLeave={e => { e.currentTarget.style.background = '' }}
+    >
       <div className="flex items-start gap-2.5">
         <div
-          className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 border-2 border-white shadow-sm"
-          style={{ background: color }}
+          className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 border-2 shadow-sm"
+          style={{ background: color, borderColor: 'rgba(255,255,255,0.15)' }}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-800 truncate leading-tight">{point.name}</p>
+          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#e2edf5' }}>{point.name}</p>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <span className="text-xs text-slate-400">{TYPE_LABELS[point.type] || point.type}</span>
+            <span className="text-xs" style={{ color: '#7eb8cc' }}>{TYPE_LABELS[point.type] || point.type}</span>
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
               style={{ background: statusC.bg, color: statusC.text }}
@@ -245,7 +256,7 @@ function PointCard({ point }) {
             </span>
           </div>
           {point.district && (
-            <p className="text-xs text-slate-400 mt-0.5 truncate">{point.district}</p>
+            <p className="text-xs mt-0.5 truncate" style={{ color: '#5a8ea3' }}>{point.district}</p>
           )}
         </div>
       </div>
@@ -255,7 +266,7 @@ function PointCard({ point }) {
 
 function SkeletonCard() {
   return (
-    <div className="px-4 py-3 border-b border-slate-100">
+    <div className="px-4 py-3 border-b" style={{ borderColor: '#2d4a5f' }}>
       <div className="flex items-start gap-2.5">
         <div className="skeleton w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5" />
         <div className="flex-1 space-y-2">
@@ -299,23 +310,28 @@ export default function MapPage({ apiBase, refreshKey }) {
     <div className="flex flex-col md:flex-row h-full">
 
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex flex-col w-80 flex-shrink-0 bg-white border-r border-slate-200 overflow-hidden">
+      <aside className="hidden md:flex flex-col w-80 flex-shrink-0 overflow-hidden border-r"
+        style={{ background: '#1a2e3b', borderColor: '#2d4a5f' }}>
 
         {/* Stats header */}
-        <div className="bg-navy-900 p-4 flex-shrink-0">
-          <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-3">Обзор — Западный Казахстан</p>
+        <div className="p-4 flex-shrink-0 border-b" style={{ background: '#0f1923', borderColor: '#2d4a5f' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#7eb8cc' }}>
+            Обзор — Западный Казахстан
+          </p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="rounded-xl p-3 text-center border"
+              style={{ background: 'rgba(0,180,216,0.07)', borderColor: 'rgba(0,180,216,0.2)', boxShadow: '0 0 12px rgba(0,180,216,0.1)' }}>
               <div className="text-2xl font-bold text-white">
                 {loading ? <span className="skeleton inline-block w-8 h-7 rounded" /> : points.length}
               </div>
-              <div className="text-xs text-blue-300 mt-0.5">Всего точек</div>
+              <div className="text-xs mt-0.5" style={{ color: '#7eb8cc' }}>Всего точек</div>
             </div>
-            <div className="bg-white/10 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-green-400">
+            <div className="rounded-xl p-3 text-center border"
+              style={{ background: 'rgba(74,222,128,0.07)', borderColor: 'rgba(74,222,128,0.2)', boxShadow: '0 0 12px rgba(74,222,128,0.08)' }}>
+              <div className="text-2xl font-bold" style={{ color: '#4ade80' }}>
                 {loading ? <span className="skeleton inline-block w-8 h-7 rounded" /> : activeCount}
               </div>
-              <div className="text-xs text-blue-300 mt-0.5">Работают</div>
+              <div className="text-xs mt-0.5" style={{ color: '#7eb8cc' }}>Работают</div>
             </div>
           </div>
         </div>
@@ -324,8 +340,8 @@ export default function MapPage({ apiBase, refreshKey }) {
         <FilterPanel filters={filters} setFilters={setFilters} />
 
         {/* Legend */}
-        <div className="px-4 py-3 border-b border-slate-100 flex-shrink-0">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Легенда</p>
+        <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: '#2d4a5f' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7eb8cc' }}>Легенда</p>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
             {[
               ['#22c55e', 'Пресная'],
@@ -337,16 +353,16 @@ export default function MapPage({ apiBase, refreshKey }) {
             ].map(([color, label]) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                <span className="text-xs text-slate-500">{label}</span>
+                <span className="text-xs" style={{ color: '#a0c4d4' }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Points list */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" style={{ scrollbarColor: '#2d4a5f #1a2e3b' }}>
           <div className="px-4 py-2 flex-shrink-0">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7eb8cc' }}>
               {loading ? 'Загрузка точек...' : `Точки (${points.length})`}
             </p>
           </div>
@@ -355,10 +371,13 @@ export default function MapPage({ apiBase, refreshKey }) {
             ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             : points.length === 0
               ? (
-                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                  <div className="text-4xl mb-3">🔍</div>
-                  <p className="text-sm font-semibold text-slate-700">Точки не найдены</p>
-                  <p className="text-xs text-slate-400 mt-1">Попробуйте изменить фильтры</p>
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#2d4a5f', marginBottom: '12px' }}>
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <p className="text-sm font-semibold" style={{ color: '#a0c4d4' }}>Точки не найдены</p>
+                  <p className="text-xs mt-1" style={{ color: '#5a8ea3' }}>Попробуйте изменить фильтры</p>
                 </div>
               )
               : points.map(p => <PointCard key={p.id} point={p} />)
@@ -367,7 +386,7 @@ export default function MapPage({ apiBase, refreshKey }) {
       </aside>
 
       {/* ── Map area ── */}
-      <div className="flex-1 relative min-h-0">
+      <div className="flex-1 relative min-h-0" style={{ background: '#0f1923' }}>
         {/* Mobile floating filters */}
         <div className="md:hidden">
           <Filters filters={filters} setFilters={setFilters} />
@@ -392,9 +411,14 @@ export default function MapPage({ apiBase, refreshKey }) {
           <NearestButton apiBase={apiBase} />
         </MapContainer>
 
+        {/* Left edge vignette where sidebar meets map */}
+        <div className="hidden md:block absolute top-0 left-0 w-10 h-full z-[999] pointer-events-none"
+          style={{ background: 'linear-gradient(to right, rgba(26,46,59,0.5), transparent)' }} />
+
         {/* Loading overlay */}
         {loading && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur px-4 py-2 rounded-full shadow-lg text-sm font-medium text-slate-600 z-[1000] flex items-center gap-2 border border-slate-200">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 backdrop-blur px-4 py-2 rounded-full shadow-lg text-sm font-semibold z-[1000] flex items-center gap-2 border"
+            style={{ background: 'rgba(26,46,59,0.92)', borderColor: '#2d4a5f', color: '#a0c4d4' }}>
             <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
@@ -403,7 +427,8 @@ export default function MapPage({ apiBase, refreshKey }) {
         )}
 
         {/* Mobile legend (bottom-right floating) */}
-        <div className="md:hidden absolute bottom-20 right-3 bg-white/95 backdrop-blur rounded-xl shadow-lg p-3 z-[1000] border border-slate-200">
+        <div className="md:hidden absolute bottom-20 right-3 backdrop-blur rounded-xl shadow-lg p-3 z-[1000] border"
+          style={{ background: 'rgba(26,46,59,0.92)', borderColor: '#2d4a5f' }}>
           <div className="flex flex-col gap-1.5">
             {[
               ['#22c55e', 'Пресная'],
@@ -413,7 +438,7 @@ export default function MapPage({ apiBase, refreshKey }) {
             ].map(([color, label]) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                <span className="text-xs text-slate-600">{label}</span>
+                <span className="text-xs" style={{ color: '#a0c4d4' }}>{label}</span>
               </div>
             ))}
           </div>

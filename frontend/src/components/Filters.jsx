@@ -25,8 +25,8 @@ const QUALITY_OPTIONS = [
   { value: 'unknown', label: 'Неизвестно' },
 ]
 
-const selectClass = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors'
-const labelClass = 'block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5'
+const selectClass = 'w-full border border-[#2d4a5f] rounded-lg px-3 py-2 text-sm bg-[#0f1923] text-white focus:ring-2 focus:ring-[#00b4d8] focus:border-[#00b4d8] outline-none transition-colors appearance-none cursor-pointer'
+const labelClass = 'block text-xs font-semibold text-[#7eb8cc] uppercase tracking-wider mb-1.5'
 
 function FilterSelects({ filters, onChange }) {
   return (
@@ -59,13 +59,13 @@ export function FilterPanel({ filters, setFilters }) {
   const hasActive = filters.type || filters.status || filters.water_quality
 
   return (
-    <div className="p-4 border-b border-slate-100">
+    <div className="p-4 border-b border-[#2d4a5f]">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Фильтры</span>
+        <span className="text-xs font-semibold text-[#7eb8cc] uppercase tracking-wider">Фильтры</span>
         {hasActive && (
           <button
             onClick={() => setFilters({ type: '', status: '', water_quality: '' })}
-            className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors"
+            className="text-xs text-water hover:text-water-light font-semibold transition-colors"
           >
             Сбросить
           </button>
@@ -87,7 +87,8 @@ export default function Filters({ filters, setFilters }) {
     <div className="absolute top-4 left-4 z-[1000]">
       <button
         onClick={() => setOpen(!open)}
-        className="bg-white/95 backdrop-blur shadow-lg rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white flex items-center gap-2 border border-slate-200 transition-all"
+        className="backdrop-blur shadow-lg rounded-xl px-4 py-2.5 text-sm font-semibold text-white flex items-center gap-2 border transition-all"
+        style={{ background: 'rgba(26,46,59,0.92)', borderColor: '#2d4a5f' }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="4" y1="6" x2="20" y2="6" />
@@ -96,16 +97,17 @@ export default function Filters({ filters, setFilters }) {
         </svg>
         Фильтры
         {hasActive && (
-          <span className="bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">!</span>
+          <span className="text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: '#00b4d8' }}>!</span>
         )}
       </button>
 
       {open && (
-        <div className="mt-2 bg-white rounded-xl shadow-2xl p-4 w-64 border border-slate-100">
+        <div className="mt-2 rounded-xl shadow-2xl p-4 w-64 border" style={{ background: '#1a2e3b', borderColor: '#2d4a5f' }}>
           <FilterSelects filters={filters} onChange={handleChange} />
           <button
             onClick={() => { setFilters({ type: '', status: '', water_quality: '' }); setOpen(false) }}
-            className="w-full mt-3 text-xs text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+            className="w-full mt-3 text-xs font-semibold transition-colors"
+            style={{ color: '#00b4d8' }}
           >
             Сбросить фильтры
           </button>

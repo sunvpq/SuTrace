@@ -33,22 +33,22 @@ export default function Header() {
   return (
     <>
       {/* Desktop header */}
-      <header className="hidden md:flex items-center justify-between bg-navy-900 text-white px-6 py-3 shadow-lg z-50 flex-shrink-0" style={{ minHeight: '56px' }}>
+      <header className="hidden md:flex items-center justify-between text-white px-6 py-3 z-50 flex-shrink-0 border-b border-dark-border" style={{ minHeight: '56px', background: '#0f1923' }}>
         <div className="flex items-center">
-          <img src="/sutracelogo.jpeg" alt="SuTrace" style={{ height: '40px' }} className="rounded-lg" />
+          <img src="/sutracelogo.jpeg" alt="SuTrace" style={{ height: '36px' }} className="rounded-lg" />
         </div>
 
-        <nav className="flex gap-1">
+        <nav className="flex gap-1.5">
           {links.map(l => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                `flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 border ${
                   isActive
-                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-water text-white border-water shadow-lg shadow-water/25'
+                    : 'text-water-muted border-dark-border hover:bg-white/5 hover:text-white hover:border-water/40'
                 }`
               }
             >
@@ -60,17 +60,19 @@ export default function Header() {
       </header>
 
       {/* Mobile bottom tabs */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-navy-900 border-t border-white/10 flex z-50 pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t flex z-50 pb-safe"
+        style={{ background: '#0f1923', borderColor: '#2d4a5f' }}>
         {links.map(l => (
           <NavLink
             key={l.to}
             to={l.to}
             end={l.to === '/'}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center py-3 gap-1 text-xs font-medium transition-colors ${
-                isActive ? 'text-blue-400' : 'text-slate-400'
+              `flex-1 flex flex-col items-center py-3 gap-1 text-xs font-semibold transition-colors ${
+                isActive ? '' : ''
               }`
             }
+            style={({ isActive }) => ({ color: isActive ? '#00b4d8' : '#5a8ea3' })}
           >
             {l.icon}
             {l.label}
