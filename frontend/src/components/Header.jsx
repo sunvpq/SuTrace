@@ -34,8 +34,11 @@ export default function Header() {
     <>
       {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between text-white px-6 py-3 z-50 flex-shrink-0 border-b border-dark-border" style={{ minHeight: '56px', background: '#0f1923' }}>
-        <div className="flex items-center">
+        <div className="flex items-center" style={{ gap: '10px' }}>
           <img src="/sutracelogo.jpeg" alt="SuTrace" style={{ height: '36px' }} className="rounded-lg" />
+          <span className="sutrace-brand">
+            Su<span className="brand-accent">Trace</span>
+          </span>
         </div>
 
         <nav className="flex gap-1.5">

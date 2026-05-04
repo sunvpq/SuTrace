@@ -112,6 +112,20 @@ body {
   animation: sutrace-pulse 1.8s ease-out infinite;
 }
 
+.sutrace-brand {
+  font-family: 'Manrope', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #e0f4f8;
+  text-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
+}
+
+.brand-accent {
+  color: #00b4d8;
+  text-shadow: 0 0 12px rgba(0, 180, 216, 0.8);
+}
+
 .user-location-label {
   margin-left: 6px;
   font-size: 11px;
