@@ -34,14 +34,8 @@ export default function Header() {
     <>
       {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between bg-navy-900 text-white px-6 py-3 shadow-lg z-50 flex-shrink-0" style={{ minHeight: '56px' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center text-lg shadow-md shadow-blue-500/30">
-            💧
-          </div>
-          <div>
-            <h1 className="text-base font-bold tracking-tight leading-none text-white">SuTrace</h1>
-            <p className="text-xs text-blue-300 leading-none mt-0.5 font-medium">Trace Every Drop</p>
-          </div>
+        <div className="flex items-center">
+          <img src="/sutracelogo.jpeg" alt="SuTrace" style={{ height: '40px' }} className="rounded-lg" />
         </div>
 
         <nav className="flex gap-1">

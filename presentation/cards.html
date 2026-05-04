@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuTrace — Impact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #0A0A0A;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 48px 24px;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .card {
+    width: 320px;
+    background: #111111;
+    border: 1px solid #1E1E1E;
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+  .card.blue::before  { background: #00BFFF; }
+  .card.teal::before  { background: #00FFB2; }
+  .card.gold::before  { background: #FFD700; }
+
+  .card-number {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .card.blue  .card-number { color: #00BFFF; }
+  .card.teal  .card-number { color: #00FFB2; }
+  .card.gold  .card-number { color: #FFD700; }
+
+  .card-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    font-weight: 400;
+    color: #777777;
+    line-height: 1.6;
+  }
+
+  .quote {
+    border-left: 3px solid #00BFFF;
+    padding-left: 20px;
+    max-width: 700px;
+  }
+
+  .quote p {
+    font-size: 15px;
+    font-style: italic;
+    color: #AAAAAA;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+  <div class="cards">
+
+    <div class="card blue">
+      <div class="card-number">1,35 млн</div>
+      <div class="card-label">жителей в зоне охвата</div>
+      <div class="card-desc">Атырауская и Мангистауская области</div>
+    </div>
+
+    <div class="card teal">
+      <div class="card-number">55–60 тыс. т</div>
+      <div class="card-label">воды уходит в степь ежедневно</div>
+      <div class="card-desc">из бесконтрольных скважин — платформа делает их видимыми для госорганов</div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-number">50+ млрд ₸</div>
+      <div class="card-label">потрачено по «Ақ бұлақ»</div>
+      <div class="card-desc">в условиях информационного вакуума — SuTrace даёт акиматам первый публичный реестр</div>
+    </div>
+
+  </div>
+
+  <div class="quote">
+    <p>«Акимат впервые получает живой реестр скважин — не бумажный отчёт раз в год, а карта которая обновляется сегодня.»</p>
+  </div>
+
+</body>
+</html>

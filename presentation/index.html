@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuTrace — Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0A;
+    --accent: #00BFFF;
+    --teal: #00FFB2;
+    --text: #FFFFFF;
+    --muted: #AAAAAA;
+    --card: #111111;
+    --card-border: #1a1a1a;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── SLIDE SHELL ─────────────────────────────────────────── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100vw; height: 100vh;
+    padding: 52px 72px 80px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity .45s cubic-bezier(.4,0,.2,1),
+                transform .45s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  /* ── SHARED ATOMS ─────────────────────────────────────────── */
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .headline {
+    font-size: clamp(28px, 3.2vw, 46px);
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .accent-line {
+    width: 64px; height: 2px;
+    background: var(--accent);
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    display: block;
+    width: 100%; height: 3px;
+    background: var(--accent);
+    position: absolute;
+    top: 0; left: 0;
+    border-radius: 14px 14px 0 0;
+  }
+  .card-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+  .card-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .card-body {
+    font-size: 13px; font-weight: 400;
+    color: var(--muted); line-height: 1.6;
+  }
+
+  /* ── NAV CHROME ──────────────────────────────────────────── */
+  #nav-prev, #nav-next {
+    position: fixed; bottom: 28px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid #2a2a2a;
+    background: #111;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, color .2s;
+    z-index: 100;
+  }
+  #nav-prev { left: 28px; }
+  #nav-next { right: 28px; }
+  #nav-prev:hover, #nav-next:hover { border-color: var(--accent); color: var(--accent); }
+
+  #counter {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: .1em;
+    color: #444;
+    z-index: 100;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+  ═══════════════════════════════════════════════════════════ */
+  #s1 { display: flex; flex-direction: column; justify-content: space-between; }
+
+  .s1-ripple {
+    position: absolute;
+    right: -10vw; top: 50%; transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .s1-ripple circle { fill: none; stroke: var(--accent); }
+
+  .s1-top-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .s1-center {
+    display: flex; flex-direction: column; align-items: flex-start;
+    flex: 1; justify-content: center; gap: 0;
+    padding-bottom: 16px;
+  }
+
+  .s1-title {
+    font-size: clamp(72px, 9vw, 96px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .s1-line {
+    width: 120px; height: 2px;
+    background: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .s1-tagline {
+    font-size: clamp(16px, 1.8vw, 22px);
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .s1-bottom {
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+
+  .s1-team {
+    font-size: 12px; color: #555; line-height: 1.9;
+    font-weight: 400;
+  }
+
+  .s1-tags { display: flex; gap: 10px; }
+  .s1-tag {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .08em;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: var(--muted);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 2 — PROBLEM
+  ═══════════════════════════════════════════════════════════ */
+  #s2 { display: flex; flex-direction: column; }
+
+  .s2-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    flex: 1;
+    align-items: stretch;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 3 — SOLUTION
+  ═══════════════════════════════════════════════════════════ */
+  #s3 { display: flex; flex-direction: column; }
+
+  .s3-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 18px;
+    flex: 1;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 4 — PRODUCT DEMO
+  ═══════════════════════════════════════════════════════════ */
+  #s4 { display: flex; flex-direction: column; }
+
+  .s4-phones-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 36px;
+    flex: 1;
+    padding-top: 8px;
+    padding-bottom: 16px;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .06em; }
+
+  .phone {
+    width: 180px; height: 340px;
+    border: 1px solid #333;
+    border-radius: 28px;
+    background: #111;
+    box-shadow: 0 0 32px rgba(0,191,255,.08);
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+    padding: 18px 14px 14px;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 4px;
+    background: #222; border-radius: 2px;
+  }
+
+  .phone-screen-title {
+    font-size: 10px; font-weight: 700;
+    color: var(--text);
+    margin-top: 8px;
+    letter-spacing: .04em;
+  }
+
+  /* Phone 1 — Map */
+  .map-canvas {
+    flex: 1;
+    background: #0D1F1A;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .map-dot.blue  { background: #00BFFF; box-shadow: 0 0 6px rgba(0,191,255,.6); }
+  .map-dot.red   { background: #FF4444; box-shadow: 0 0 6px rgba(255,68,68,.5); }
+  .map-dot.grey  { background: #555; }
+
+  .map-legend {
+    font-size: 8px; color: var(--muted);
+    display: flex; gap: 6px; flex-wrap: wrap;
+    line-height: 1.4;
+  }
+
+  /* Phone 2 — Detail */
+  .detail-status {
+    display: inline-flex; align-items: center;
+    font-size: 9px; font-weight: 700;
+    background: rgba(0,255,178,.12);
+    color: var(--teal);
+    border-radius: 20px;
+    padding: 3px 10px;
+    align-self: flex-start;
+  }
+  .detail-row {
+    font-size: 9px; color: var(--muted); line-height: 1.8;
+    border-top: 1px solid #1e1e1e;
+    padding-top: 8px;
+  }
+  .detail-row span { color: var(--text); font-weight: 600; }
+  .detail-btn {
+    background: var(--teal);
+    color: #000;
+    font-size: 8px; font-weight: 700;
+    border-radius: 6px;
+    padding: 5px 10px;
+    text-align: center;
+    margin-top: auto;
+  }
+
+  /* Phone 3 — Dashboard */
+  .dash-stat {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9px; color: var(--muted);
+    border-top: 1px solid #1e1e1e;
+    padding: 5px 0;
+  }
+  .dash-stat .val { font-weight: 700; }
+  .bar-track {
+    height: 6px;
+    border-radius: 3px;
+    background: #1a1a1a;
+    overflow: hidden;
+    display: flex;
+    margin-top: auto;
+  }
+  .bar-seg { height: 100%; }
+
+  .s4-meta {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding-bottom: 4px;
+  }
+  .s4-link {
+    font-size: 13px; font-weight: 600;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .s4-stack { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .stack-badge {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .04em;
+    color: #555;
+    border: 1px solid #1e1e1e;
+    border-radius: 4px;
+    padding: 3px 10px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 5 — AUDIENCE & IMPACT
+  ═══════════════════════════════════════════════════════════ */
+  #s5 { display: flex; flex-direction: column; }
+
+  .s5-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    flex: 1;
+    align-items: center;
+  }
+
+  .s5-audience { display: flex; flex-direction: column; gap: 16px; }
+  .aud-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .aud-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .aud-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .aud-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+  .s5-impact { display: flex; flex-direction: column; gap: 32px; }
+  .impact-stat {}
+  .impact-num {
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .impact-sub { font-size: 13px; color: var(--muted); }
+  .impact-divider {
+    width: 40px; height: 1px;
+    background: #222;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 6 — ROADMAP
+  ═══════════════════════════════════════════════════════════ */
+  #s6 { display: flex; flex-direction: column; }
+
+  .timeline-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    flex: 1;
+    align-items: flex-start;
+    padding-top: 16px;
+    position: relative;
+  }
+
+  .timeline-row::before {
+    content: '';
+    position: absolute;
+    top: 38px;
+    left: calc(100% / 6);
+    right: calc(100% / 6);
+    height: 1px;
+    background: linear-gradient(to right, var(--teal) 33%, #333 33%);
+    z-index: 0;
+  }
+
+  .phase { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+  .phase-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    position: relative; z-index: 1;
+    flex-shrink: 0;
+    margin-bottom: 20px;
+  }
+  .phase-dot.filled {
+    background: var(--teal);
+    box-shadow: 0 0 12px rgba(0,255,178,.5);
+  }
+  .phase-dot.outline {
+    border: 2px solid #444;
+    background: var(--bg);
+  }
+
+  .phase-box {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    width: 100%;
+    max-width: 280px;
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .1em;
+    margin-bottom: 16px;
+  }
+  .phase-title.done { color: var(--teal); }
+  .phase-title.soon { color: var(--muted); }
+  .phase-title.later { color: #444; }
+  .phase-items { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .phase-items li {
+    font-size: 12.5px; font-weight: 400;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .phase-items li::before {
+    content: '—';
+    position: absolute; left: 0;
+    font-size: 10px;
+  }
+  .phase.done-phase .phase-items li { color: #ccc; }
+  .phase.done-phase .phase-items li::before { color: var(--teal); }
+  .phase.soon-phase .phase-items li { color: #666; }
+  .phase.soon-phase .phase-items li::before { color: #444; }
+  .phase.later-phase .phase-items li { color: #444; }
+  .phase.later-phase .phase-items li::before { color: #333; }
+
+  /* ════════════════════════════════════════════════════════════
+     SLIDE 7 — CLOSING
+  ═══════════════════════════════════════════════════════════ */
+  #s7 {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    gap: 0;
+  }
+
+  .s7-ripple {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .s7-ripple circle { fill: none; stroke: var(--accent); }
+
+  .s7-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+  .s7-title {
+    font-size: clamp(60px, 8vw, 84px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1;
+    margin-bottom: 18px;
+  }
+  .s7-tagline {
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .s7-line {
+    width: 80px; height: 2px;
+    background: var(--accent);
+    margin-bottom: 36px;
+  }
+  .s7-links {
+    display: flex; gap: 36px;
+    margin-bottom: 48px;
+  }
+  .s7-link {
+    font-size: 15px; font-weight: 600;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .s7-team {
+    font-size: 12px; color: #555;
+    display: flex; gap: 24px;
+    margin-bottom: 24px;
+  }
+  .s7-badge {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .1em;
+    color: #333;
+    border: 1px solid #1e1e1e;
+    border-radius: 6px;
+    padding: 6px 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════════════ -->
+<section class="slide active" id="s1">
+  <svg class="s1-ripple" width="700" height="700" viewBox="0 0 700 700" aria-hidden="true">
+    <circle cx="350" cy="350" r="160" stroke-opacity=".06" stroke-width="1.5"/>
+    <circle cx="350" cy="350" r="260" stroke-opacity=".045" stroke-width="1.5"/>
+    <circle cx="350" cy="350" r="340" stroke-opacity=".03" stroke-width="1.5"/>
+  </svg>
+
+  <div class="s1-top-label">Water Innovation Hackathon</div>
+
+  <div class="s1-center">
+    <div class="s1-title">SuTrace</div>
+    <div class="s1-line"></div>
+    <div class="s1-tagline">Цифровая карта водных точек Казахстана</div>
+  </div>
+
+  <div class="s1-bottom">
+    <div class="s1-team">
+      Абдуллаев Абилмансур<br>
+      Дүйсен Іңкәр<br>
+      Амангельды Нурали<br>
+      Ағабек Кемеңгер
+    </div>
+    <div class="s1-tags">
+      <div class="s1-tag">Digital Solutions Track</div>
+      <div class="s1-tag">Атырау · 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 2 — PROBLEM
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="label">Проблема</div>
+  <div class="headline">Вода есть. Никто не знает где.</div>
+  <div class="accent-line"></div>
+
+  <div class="s2-cards">
+    <div class="card">
+      <span class="card-icon">💧</span>
+      <div class="card-title">Нет реестра</div>
+      <div class="card-body">Сотни скважин в западном Казахстане без единого реестра и актуального статуса</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🏚</span>
+      <div class="card-title">Информационный вакуум</div>
+      <div class="card-body">Аулы пьют солёную воду — пресная скважина в 15 км, но о ней никто не знает</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🏛</span>
+      <div class="card-title">Акимат в слепой зоне</div>
+      <div class="card-body">Местные власти не знают какие скважины заброшены, какие работают, чьи они</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 3 — SOLUTION
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="label">Решение</div>
+  <div class="headline">SuTrace — Google Maps для воды в степи</div>
+  <div class="accent-line"></div>
+
+  <div class="s3-grid">
+    <div class="card">
+      <span class="card-icon">🗺</span>
+      <div class="card-title">Интерактивная карта</div>
+      <div class="card-body">Каждая точка: GPS-координаты, статус (работает / сломана / заброшена), качество воды</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🤖</span>
+      <div class="card-title">Telegram-бот</div>
+      <div class="card-body">Чабан в степи фотографирует скважину и отмечает геолокацию → точка появляется на карте</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🧭</span>
+      <div class="card-title">Маршрутизатор</div>
+      <div class="card-body">Пользователь указывает локацию → система находит ближайшую рабочую точку с пресной водой</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">📊</span>
+      <div class="card-title">Дашборд акимата</div>
+      <div class="card-body">Тепловая карта белых зон, статистика по статусам, аналитика для планирования</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 4 — PRODUCT DEMO
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="label">Product Demo</div>
+  <div class="headline">Три экрана. Вся вода региона.</div>
+  <div class="accent-line"></div>
+
+  <div class="s4-phones-row">
+
+    <!-- Phone 1: Map -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen-title">Карта точек</div>
+        <div class="map-canvas">
+          <div class="map-dot blue"  style="left:28%;top:30%"></div>
+          <div class="map-dot blue"  style="left:55%;top:22%"></div>
+          <div class="map-dot blue"  style="left:72%;top:55%"></div>
+          <div class="map-dot blue"  style="left:38%;top:68%"></div>
+          <div class="map-dot blue"  style="left:15%;top:58%"></div>
+          <div class="map-dot red"   style="left:62%;top:38%"></div>
+          <div class="map-dot red"   style="left:45%;top:80%"></div>
+          <div class="map-dot grey"  style="left:80%;top:25%"></div>
+          <div class="map-dot grey"  style="left:22%;top:82%"></div>
+        </div>
+        <div class="map-legend">
+          <span>🔵 Работает</span>
+          <span>🔴 Сломана</span>
+          <span>⚫ Неизвестна</span>
+        </div>
+      </div>
+      <div class="phone-label">Карта</div>
+    </div>
+
+    <!-- Phone 2: Detail -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen-title">Скважина #47</div>
+        <div class="detail-status">✅ Работает</div>
+        <div class="detail-row">
+          Тип воды:<br><span>Пресная · 1.2 г/л</span>
+        </div>
+        <div class="detail-row">
+          Координаты:<br><span>47.12° N, 51.88° E</span>
+        </div>
+        <div class="detail-row">
+          Обновлено:<br><span>3 апр 2026</span>
+        </div>
+        <div class="detail-btn">Построить маршрут →</div>
+      </div>
+      <div class="phone-label">Детали точки</div>
+    </div>
+
+    <!-- Phone 3: Dashboard -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen-title">Дашборд акимата</div>
+        <div class="dash-stat">
+          <span>Всего точек</span>
+          <span class="val" style="color:#fff">142</span>
+        </div>
+        <div class="dash-stat">
+          <span>Работают</span>
+          <span class="val" style="color:#00FFB2">89</span>
+        </div>
+        <div class="dash-stat">
+          <span>Требуют ремонта</span>
+          <span class="val" style="color:#FFD700">31</span>
+        </div>
+        <div class="dash-stat">
+          <span>Заброшены</span>
+          <span class="val" style="color:#FF4444">22</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-seg" style="width:62.7%;background:#00FFB2"></div>
+          <div class="bar-seg" style="width:21.8%;background:#FFD700"></div>
+          <div class="bar-seg" style="width:15.5%;background:#FF4444"></div>
+        </div>
+      </div>
+      <div class="phone-label">Дашборд</div>
+    </div>
+
+  </div><!-- /phones row -->
+
+  <div class="s4-meta">
+    <span class="s4-link">su-trace.vercel.app</span>
+    <div class="s4-stack">
+      <span class="stack-badge">React</span>
+      <span class="stack-badge">Leaflet</span>
+      <span class="stack-badge">FastAPI</span>
+      <span class="stack-badge">PostgreSQL</span>
+      <span class="stack-badge">Railway</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 5 — AUDIENCE & IMPACT
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="label">Аудитория и эффект</div>
+  <div class="headline">Кому это нужно</div>
+  <div class="accent-line"></div>
+
+  <div class="s5-body">
+    <div class="s5-audience">
+      <div class="aud-card">
+        <div class="aud-icon">👨‍🌾</div>
+        <div>
+          <div class="aud-title">Жители аулов</div>
+          <div class="aud-desc">Найти ближайшую рабочую точку с питьевой водой</div>
+        </div>
+      </div>
+      <div class="aud-card">
+        <div class="aud-icon">🐄</div>
+        <div>
+          <div class="aud-title">Чабаны и фермеры</div>
+          <div class="aud-desc">Вода для скота — критично в степных маршрутах</div>
+        </div>
+      </div>
+      <div class="aud-card">
+        <div class="aud-icon">🏛</div>
+        <div>
+          <div class="aud-title">Акимат / Водоканал</div>
+          <div class="aud-desc">Реестр, мониторинг состояния, планирование ремонта</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s5-impact">
+      <div class="impact-stat">
+        <div class="impact-num">2 региона</div>
+        <div class="impact-sub">Атырауская и Мангистауская обл.</div>
+      </div>
+      <div class="impact-divider"></div>
+      <div class="impact-stat">
+        <div class="impact-num">100+ нас. пунктов</div>
+        <div class="impact-sub">Потенциальный охват</div>
+      </div>
+      <div class="impact-divider"></div>
+      <div class="impact-stat">
+        <div class="impact-num">Real-time</div>
+        <div class="impact-sub">Обновление через Telegram-бот</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 6 — ROADMAP
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s6">
+  <div class="label">План развития</div>
+  <div class="headline">Развитие</div>
+  <div class="accent-line"></div>
+
+  <div class="timeline-row">
+
+    <div class="phase done-phase" style="align-items:center;padding:0 16px;">
+      <div class="phase-dot filled"></div>
+      <div class="phase-box">
+        <div class="phase-title done">MVP · Готово</div>
+        <ul class="phase-items">
+          <li>Интерактивная карта</li>
+          <li>Telegram-бот для репортинга</li>
+          <li>Дашборд акимата</li>
+          <li>Деплой: Vercel + Railway</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase soon-phase" style="align-items:center;padding:0 16px;">
+      <div class="phase-dot outline"></div>
+      <div class="phase-box">
+        <div class="phase-title soon">3 месяца</div>
+        <ul class="phase-items">
+          <li>Интеграция с акиматами</li>
+          <li>Верификация данных (модерация)</li>
+          <li>Мобильное приложение</li>
+          <li>Партнёрство с водоканалами</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase later-phase" style="align-items:center;padding:0 16px;">
+      <div class="phase-dot outline" style="border-color:#2a2a2a"></div>
+      <div class="phase-box" style="border-color:#141414">
+        <div class="phase-title later">12 месяцев</div>
+        <ul class="phase-items">
+          <li>Масштаб: весь Казахстан</li>
+          <li>API для госструктур</li>
+          <li>Предиктивная аналитика</li>
+          <li>Интеграция с «Ақ бұлақ»</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 7 — CLOSING
+══════════════════════════════════════════════════ -->
+<section class="slide" id="s7">
+  <svg class="s7-ripple" width="800" height="800" viewBox="0 0 800 800" aria-hidden="true">
+    <circle cx="400" cy="400" r="180" stroke-opacity=".05" stroke-width="1.5"/>
+    <circle cx="400" cy="400" r="290" stroke-opacity=".035" stroke-width="1.5"/>
+    <circle cx="400" cy="400" r="380" stroke-opacity=".025" stroke-width="1.5"/>
+  </svg>
+
+  <div class="s7-content">
+    <div class="s7-title">SuTrace</div>
+    <div class="s7-tagline">Каждая точка воды — на карте.</div>
+    <div class="s7-line"></div>
+
+    <div class="s7-links">
+      <a class="s7-link" href="https://su-trace.vercel.app" target="_blank">🌐 su-trace.vercel.app</a>
+      <a class="s7-link" href="https://github.com/sunvpq/SuTrace" target="_blank">💻 github.com/sunvpq/SuTrace</a>
+    </div>
+
+    <div class="s7-team">
+      <span>Абдуллаев Абилмансур</span>
+      <span>Дүйсен Іңкәр</span>
+      <span>Амангельды Нурали</span>
+      <span>Ағабек Кемеңгер</span>
+    </div>
+
+    <div class="s7-badge">Water Innovation Hackathon · Атырау · 2026</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════════ -->
+<button id="nav-prev" aria-label="Previous slide">&#8592;</button>
+<div id="counter">1 / 7</div>
+<button id="nav-next" aria-label="Next slide">&#8594;</button>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+  let animating = false;
+
+  const counter = document.getElementById('counter');
+
+  function go(next) {
+    if (animating || next === current || next < 0 || next >= total) return;
+    animating = true;
+
+    const prev = current;
+    const forward = next > prev;
+
+    slides[prev].classList.remove('active');
+    slides[prev].classList.add(forward ? 'exit-left' : '');
+    if (!forward) {
+      slides[prev].style.transform = 'translateX(40px)';
+      slides[prev].style.opacity = '0';
+    }
+
+    slides[next].style.transform = forward ? 'translateX(40px)' : 'translateX(-40px)';
+    slides[next].style.opacity = '0';
+    slides[next].style.transition = 'none';
+    slides[next].classList.add('active');
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        slides[next].style.transition = '';
+        slides[next].style.transform = 'translateX(0)';
+        slides[next].style.opacity = '1';
+      });
+    });
+
+    setTimeout(() => {
+      slides[prev].classList.remove('exit-left');
+      slides[prev].style.transform = '';
+      slides[prev].style.opacity = '';
+      slides[prev].style.transition = '';
+      animating = false;
+    }, 460);
+
+    current = next;
+    counter.textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.getElementById('nav-prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('nav-next').addEventListener('click', () => go(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(current - 1);
+  });
+</script>
+</body>
+</html>

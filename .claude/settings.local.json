@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(cp C:/Users/Admin/Desktop/PROJECTS/SuTrace/sutracelogo.jpeg C:/Users/Admin/Desktop/PROJECTS/SuTrace/frontend/public/sutracelogo.jpeg)",
+      "Bash(cp C:/Users/Admin/Desktop/PROJECTS/SuTrace/sutracelogo.jpeg C:/Users/Admin/Desktop/PROJECTS/SuTrace/frontend/public/favicon.png)"
     ]
   }
 }
